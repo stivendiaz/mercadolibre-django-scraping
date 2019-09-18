@@ -13,12 +13,15 @@ class ProductsParser:
         return { 'title': self.getTitle(),'price':self.getPrice(),'selling_number':self.getSellingNumber(),'shipment':self.getShipment()}
 
     def getTitle(self):
-
         try:
             title = self.tree.select_one(self.schema['title'])
             return title.string
         except:
-            return None
+            try:
+                title = self.tree.select_one(self.schema['title2'])
+                return title.string
+            except:
+                return 'not found'
 
 
     def getShipment(self):
@@ -26,21 +29,21 @@ class ProductsParser:
             img = self.tree.select_one(self.schema['shipment'])
             return img.string
         except:
-            return None
+            return 'not found'
 
     def getSellingNumber(self):
         try:
             selling = self.tree.select_one(self.schema['selling_number'])
             return selling.string
         except:
-            return None
+            return 'not found'
 
     def getPrice(self):
         try:
             price = self.tree.select_one(self.schema['price'])
             return re.sub('\\.','',price.string)
         except:
-            return None
+            return 'not found'
 
 
 def getHtml(url):
@@ -70,9 +73,12 @@ def callScrap(search_value):
         'url': 'https://listado.mercadolibre.com.co/' + re.sub(' ','-',search_value),
         'discriminator': 'li.results-item',
         'title': 'div > h2 > a > span',
+        'title2': 'div > h2 > span',
         'price' : 'span.price__fraction ',
         'selling_number': 'div.stack_column_item.status > div > div',
         'shipment': 'div.item__info-container.highlighted > div > div.item__stack_column.highlighted > div > div.stack_column_item.shipping.highlighted > div > p',
     }
     print(schema['url'])
     return(scrap(schema))
+
+
