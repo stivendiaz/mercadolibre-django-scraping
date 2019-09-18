@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <title>App</title>
+</head>
+<body>
+
+  <div class="container">
+    <div class="col-lg-8 col-lg-offset-2">
+        <h1 class="text-center">Scraper Mercadolibre</h1>
+        <form id="searchForm" class="text-center">
+            <input name="search" type="search" />
+            <select id="total" name="total"></select>
+            <button class="btn btn-primary" type="submit">Search</button>
+          </form>
+
+          <table id="tableid"class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Titulo</th>
+                    <th>Precio</th>
+                    <th>Vendidos</th>
+                    <th>Envio gratis</th>
+                </tr>
+            </thead>
+            <tbody id="productTable">
+
+            </tbody>
+        </table>
+
+  <script>
+    function populateTotalOptions() {
+      const select = document.getElementById('total');
+
+      for (let index = 1; index <= 50; index++) {
+        const opt = document.createElement('option');
+        opt.value = index;
+        opt.innerText = index;
+        select.appendChild(opt);
+      }
+    }
+
+    function searchProduct(search, total, callback) {
+      const url = `/buscar_texto/${search}/?total=${total}`;
+
+      const xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status == 200) {
+          callback(JSON.parse(this.responseText));
+        }
+      };
+
+      xhttp.open('GET', url, true);
+      xhttp.send();
+    }
+
+    populateTotalOptions();
+
+    const form = document.getElementById('searchForm');
+
+    const getSearchText = () => form.elements['search'].value;
+    const getTotal = () => form.elements['total'].value;
+
+    const tbody = document.getElementById('productTable');
+
+    form
+      .addEventListener('submit', (event) => {
+        event.preventDefault();
+        searchProduct(getSearchText(), getTotal(), (products) => {
+            var table = document.getElementById("tableid");
+            for(var i = table.rows.length - 1; i > 0; i--)
+            {
+                table.deleteRow(i);
+            }
+            const tr = document.createElement('tr');
+          for (const product of products.products) {
+            const tr = document.createElement('tr');
+
+            const addColumn = (text) => {
+              const td = document.createElement('td');
+              td.innerText = text;
+              tr.appendChild(td);
+            };
+
+            addColumn(product.title);
+            addColumn(product.price);
+            addColumn(product.selling_number);
+            addColumn(product.shipment);
+
+            tbody.appendChild(tr);
+          }
+        });
+      });
+  </script>
+</body>
+</html>
