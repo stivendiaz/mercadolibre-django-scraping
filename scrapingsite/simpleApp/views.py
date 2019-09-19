@@ -15,7 +15,7 @@ def search(request, search):
      result = mercadolibre.callScrap(search)
 
      for data in result:
-        product = Product(title=data.get('title'), price=data.get('price'))
+        product = Product(title=data.get('title'), price=data.get('price'),shipment=data.get('shipment'),selling_number=data.get('selling_number'))
         product.save()
 
      return JsonResponse({
